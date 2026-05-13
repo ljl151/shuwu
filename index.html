@@ -5,232 +5,365 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>易班嘉年华·思维闯关</title>
     <style>
-        * {margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-        body {background:#f5f7fa;padding:15px;max-width:500px;margin:0 auto}
-        .page {display:none}
-        .active {display:block}
-        .card {background:#fff;padding:20px;border-radius:16px;box-shadow:0 2px 10px #00000010;margin-bottom:15px}
-        h1 {text-align:center;color:#333;margin-bottom:18px;font-size:22px}
-        h2 {font-size:18px;margin:12px 0}
-        h3 {font-size:15px;margin:8px 0 4px}
-        input,button {width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-bottom:10px;font-size:15px}
-        button {background:#4a90e2;color:#fff;border:none;font-weight:bold;margin-top:5px}
-        .btn-danger {background:#e74c3c}
-        .btn-success {background:#27ae60}
-        .tip {color:#666;font-size:13px;text-align:center;margin-top:8px}
-        .q-group {border:1px solid #eee;padding:12px;border-radius:10px;margin-bottom:12px}
-        .question-img {width:100%;border-radius:10px;margin:8px 0;max-height:220px;object-fit:cover}
-        .prize {font-size:20px;font-weight:bold;color:#e67e22;text-align:center;margin:15px 0}
-        .img-preview {max-width:100%;border-radius:8px;margin-top:8px;display:none}
-        .upload-btn {background:#95a5a6}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        .page {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px #00000010;
+            margin-bottom: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        h2 {
+            font-size: 20px;
+            margin:15px 0;
+            color:#222;
+        }
+        h3{
+            font-size:16px;
+            margin:10px 0 5px;
+        }
+        input,textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+        textarea{
+            min-height:60px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .btn-danger{
+            background:#e74c3c;
+        }
+        .btn-success{
+            background:#27ae60;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question-img {
+            width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .tip {
+            color: #666;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .record-item,.q-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            word-break:break-all;
+        }
+        .prize {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e67e22;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .q-group{
+            border:1px solid #eee;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:15px;
+        }
+        /* 答题结果样式 */
+        .ans-item{
+            padding:12px;
+            border-bottom:1px solid #eee;
+        }
+        .right{
+            color:#27ae60;
+            font-weight:bold;
+        }
+        .wrong{
+            color:#e74c3c;
+            font-weight:bold;
+        }
     </style>
 </head>
 <body>
 
-<!-- 开始页面 -->
 <div id="startPage" class="page active">
     <div class="card">
         <h1>易班嘉年华·思维闯关</h1>
-        <input type="text" id="userName" placeholder="输入名字">
+        <input type="text" id="userName" placeholder="请输入你的名字">
         <button onclick="checkRole()">进入</button>
-        <p class="tip">随机3道填空题｜3分一等奖｜2分二等奖｜1分三等奖</p>
+        <p class="tip">每组固定3题｜第1/2/3关｜3分一等奖｜2分二等奖｜1分三等奖</p>
     </div>
 </div>
 
-<!-- 管理员页面（图片可直接上传） -->
 <div id="adminPage" class="page">
     <div class="card">
-        <h1>管理员·题库管理</h1>
+        <h1>管理员·题库管理（3题一组）</h1>
         <div id="qForm"></div>
         <button class="btn-success" onclick="saveQuestions()">保存全部题库</button>
         <button onclick="backToStart()">返回首页</button>
     </div>
     <div class="card">
-        <h2>答题记录</h2>
+        <h2>所有答题记录</h2>
         <div id="adminRecordList"></div>
-        <button class="btn-danger" onclick="clearAllRecord()">清空记录</button>
+        <button class="btn-danger" onclick="clearAllRecord()">清空所有记录</button>
     </div>
 </div>
 
-<!-- 游戏页面 -->
 <div id="gamePage" class="page">
     <div class="card">
         <h1 id="levelTitle">第1关</h1>
-        <div id="questionText" style="font-size:17px;margin-bottom:10px"></div>
+        <div id="questionText" class="title"></div>
         <img id="questionImg" class="question-img">
-        <input type="text" id="userAnswer" placeholder="输入答案">
-        <button onclick="submitAnswer()">提交</button>
+        <input type="text" id="userAnswer" placeholder="请输入你的答案">
+        <button onclick="submitAnswer()">提交答案</button>
     </div>
 </div>
 
-<!-- 结果页面 -->
 <div id="resultPage" class="page">
     <div class="card">
         <h1>闯关完成</h1>
-        <div id="resultInfo" style="text-align:center"></div>
+        <div id="resultInfo"></div>
+        <div id="answerList"></div>
         <div class="prize" id="prizeText"></div>
         <button onclick="backToStart()">再来一次</button>
     </div>
 </div>
 
 <script>
-    // 20题基础题库
-    const defaultTotalQuestions = [
-        {text:"1.什么动物天天熬夜？",img:"",answer:"熊猫"},
-        {text:"2.什么门永远关不上？",img:"",answer:"球门"},
-        {text:"3.打破了什么不用赔？",img:"",answer:"沉默"},
-        {text:"4.什么水永远用不完？",img:"",answer:"泪水"},
-        {text:"5.什么书里毛病最多？",img:"",answer:"医学书"},
-        {text:"6.什么球不能玩？",img:"",answer:"地球"},
-        {text:"7.什么布剪不断？",img:"",answer:"瀑布"},
-        {text:"8.什么瓜不能吃？",img:"",answer:"傻瓜"},
-        {text:"9.偷什么不犯法？",img:"",answer:"偷笑"},
-        {text:"10.什么池没有水？",img:"",answer:"电池"},
-        {text:"11.什么路最窄？",img:"",answer:"冤家路"},
-        {text:"12.什么酒不能喝？",img:"",answer:"碘酒"},
-        {text:"13.什么蛋不能吃？",img:"",answer:"考试零蛋"},
-        {text:"14.什么海不产鱼？",img:"",answer:"辞海"},
-        {text:"15.什么线剪不断？",img:"",answer:"光线"},
-        {text:"16.什么马不吃草？",img:"",answer:"海马"},
-        {text:"17.什么虎不吃人？",img:"",answer:"壁虎"},
-        {text:"18.什么狼不吃羊？",img:"",answer:"灰太狼"},
-        {text:"19.什么鸟不会飞？",img:"",answer:"鸵鸟"},
-        {text:"20.什么猫不吃鱼？",img:"",answer:"熊猫"}
+    // 题库：严格 3题一组，每次随机抽取**完整一组**，固定对应1/2/3关
+    const defaultGroups = [
+        // 第1组
+        [
+            {text:"1.什么动物天天熬夜？",img:"",answer:"熊猫"},
+            {text:"2.什么门永远关不上？",img:"",answer:"球门"},
+            {text:"3.打破了什么不用赔？",img:"",answer:"沉默"}
+        ],
+        // 第2组
+        [
+            {text:"1.什么水永远用不完？",img:"",answer:"泪水"},
+            {text:"2.什么书里毛病最多？",img:"",answer:"医学书"},
+            {text:"3.什么球不能玩？",img:"",answer:"地球"}
+        ],
+        // 第3组
+        [
+            {text:"1.什么布剪不断？",img:"",answer:"瀑布"},
+            {text:"2.什么瓜不能吃？",img:"",answer:"傻瓜"},
+            {text:"3.偷什么不犯法？",img:"",answer:"偷笑"}
+        ],
+        // 第4组
+        [
+            {text:"1.什么池没有水？",img:"",answer:"电池"},
+            {text:"2.什么路最窄？",img:"",answer:"冤家路"},
+            {text:"3.什么酒不能喝？",img:"",answer:"碘酒"}
+        ],
+        // 第5组
+        [
+            {text:"1.什么蛋不能吃？",img:"",answer:"考试零蛋"},
+            {text:"2.什么海不产鱼？",img:"",answer:"辞海"},
+            {text:"3.什么线剪不断？",img:"",answer:"光线"}
+        ],
+        // 第6组
+        [
+            {text:"1.什么马不吃草？",img:"",answer:"海马"},
+            {text:"2.什么虎不吃人？",img:"",answer:"壁虎"},
+            {text:"3.什么狼不吃羊？",img:"",answer:"灰太狼"}
+        ]
     ];
 
-    let totalQuestions = JSON.parse(localStorage.getItem("ybTotalQuestions")) || defaultTotalQuestions;
+    let questionGroups = JSON.parse(localStorage.getItem("ybGroups")) || defaultGroups;
     let records = JSON.parse(localStorage.getItem("ybGameRecords")) || [];
-    let userName = "", randomQuestions = [], currentLevel = 0, score = 0;
 
-    // 身份验证
+    let userName = "";
+    let nowGroup = []; // 当前选中的一组3题，严格1/2/3关
+    let userAnswers = []; // 保存用户每一题答案
+    let currentLevel = 0;
+    let score = 0;
+
     function checkRole(){
         userName = document.getElementById("userName").value.trim();
-        if(!userName){alert("请输入名字");return}
+        if(!userName){alert("请输入名字");return;}
         if(userName === "易班嘉年华"){
-            showPage("adminPage"); renderAdminForm(); showAdminRecord();
-        }else{ startGame() }
+            showPage("adminPage");
+            renderAdminForm();
+            showAdminRecord();
+        }else{
+            startGame();
+        }
     }
 
-    // 渲染管理员题库（支持上传图片）
     function renderAdminForm(){
         const list = document.getElementById("qForm");
-        list.innerHTML = "";
-        totalQuestions.forEach((q,i)=>{
-            const div = document.createElement("div");
-            div.className = "q-group";
-            div.innerHTML = `
-            <h3>第${i+1}题</h3>
-            <input placeholder="题目" value="${q.text}" id="t${i}">
-            <input type="file" accept="image/*" onchange="uploadImg(${i},this)">
-            <img class="img-preview" id="prev${i}" src="${q.img}" style="${q.img?'display:block':'display:none'}">
-            <input placeholder="正确答案" value="${q.answer}" id="ans${i}">
-        `;
-            list.appendChild(div);
-        });
+        list.innerHTML = "<p>每组固定3题，第1题=第1关，第2题=第2关，第3题=第3关</p>";
+        questionGroups.forEach((g,gi)=>{
+            g.forEach((q,i)=>{
+                const div = document.createElement("div");
+                div.className="q-group";
+                div.innerHTML = `
+                <h3>第${gi+1}组-第${i+1}关</h3>
+                <input placeholder="题目文字" value="${q.text}" id="g${gi}t${i}">
+                <input placeholder="图片链接(可不填)" value="${q.img}" id="g${gi}img${i}">
+                <input placeholder="正确答案" value="${q.answer}" id="g${gi}ans${i}">
+            `;
+                list.appendChild(div);
+            })
+        })
     }
 
-    // 图片上传（核心！直接选照片，自动转成网页可用格式）
-    function uploadImg(index, input){
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = e=>{
-            const base64 = e.target.result;
-            totalQuestions[index].img = base64;
-            document.getElementById(`prev${index}`).src = base64;
-            document.getElementById(`prev${index}`).style.display = "block";
-        }
-        reader.readAsDataURL(file);
-    }
-
-    // 保存题库
     function saveQuestions(){
-        for(let i=0;i<20;i++){
-            totalQuestions[i].text = document.getElementById(`t${i}`).value;
-            totalQuestions[i].answer = document.getElementById(`ans${i}`).value.trim();
-        }
-        localStorage.setItem("ybTotalQuestions", JSON.stringify(totalQuestions));
-        alert("保存成功！");
+        questionGroups.forEach((g,gi)=>{
+            g.forEach((q,i)=>{
+                q.text = document.getElementById(`g${gi}t${i}`).value;
+                q.img = document.getElementById(`g${gi}img${i}`).value;
+                q.answer = document.getElementById(`g${gi}ans${i}`).value.trim();
+            })
+        })
+        localStorage.setItem("ybGroups",JSON.stringify(questionGroups));
+        alert("题库保存成功！");
     }
 
-    // 显示记录
     function showAdminRecord(){
         const list = document.getElementById("adminRecordList");
         list.innerHTML = "";
-        if(records.length===0){list.innerHTML="<div style='padding:8px'>暂无记录</div>";return}
+        if(records.length===0){list.innerHTML="<div class='q-item'>暂无记录</div>";return;}
         records.forEach(r=>{
             const item = document.createElement("div");
-            item.style = "padding:8px;border-bottom:1px solid #eee";
+            item.className = "q-item";
             item.innerText = `${r.time}｜${r.name}｜${r.score}分｜${r.prize}`;
             list.appendChild(item);
-        });
+        })
     }
 
-    // 清空记录
     function clearAllRecord(){
-        if(confirm("确定清空？")){
+        if(confirm("确定清空所有答题记录？")){
             records=[];
-            localStorage.setItem("ybGameRecords", JSON.stringify(records));
+            localStorage.setItem("ybGameRecords",JSON.stringify(records));
             showAdminRecord();
         }
     }
 
-    // 开始游戏
-    function startGame(){
-        let temp = [...totalQuestions];
-        randomQuestions = [];
-        for(let i=0;i<3;i++){
-            let idx = Math.floor(Math.random()*temp.length);
-            randomQuestions.push(temp.splice(idx,1)[0]);
-        }
-        currentLevel=0; score=0;
+    // 随机抽取【完整一组3题】，严格对应1/2/3关
+    function startGame() {
+        let groupIdx = Math.floor(Math.random() * questionGroups.length);
+        nowGroup = questionGroups[groupIdx];
+        userAnswers = [];
+        currentLevel = 0;
+        score = 0;
         showPage("gamePage");
         loadQuestion();
     }
 
-    // 加载题目
-    function loadQuestion(){
-        const q = randomQuestions[currentLevel];
-        document.getElementById("levelTitle").innerText = `第${currentLevel+1}关`;
+    function loadQuestion() {
+        const q = nowGroup[currentLevel];
+        document.getElementById("levelTitle").innerText = `第${currentLevel + 1}关`;
         document.getElementById("questionText").innerText = q.text;
-        document.getElementById("questionImg").src = q.img;
-        document.getElementById("questionImg").style.display = q.img ? "block" : "none";
+        document.getElementById("questionImg").src = q.img||"";
+        document.getElementById("questionImg").style.display = q.img?"block":"none";
         document.getElementById("userAnswer").value = "";
     }
 
-    // 提交答案
-    function submitAnswer(){
-        const q = randomQuestions[currentLevel];
-        const u = document.getElementById("userAnswer").value.trim().toLowerCase();
-        const a = q.answer.toLowerCase();
-        if(u === a) score++;
+    function submitAnswer() {
+        const q = nowGroup[currentLevel];
+        let userAns = document.getElementById("userAnswer").value.trim();
+        let rightAns = q.answer.trim();
+
+        userAnswers.push({
+            user: userAns,
+            right: rightAns,
+            isRight: userAns === rightAns
+        });
+        if(userAns === rightAns) score++;
+
         currentLevel++;
-        if(currentLevel >= 3) showResult();
-        else loadQuestion();
+        if (currentLevel >= 3) { // 固定3题结束
+            showResult();
+        } else {
+            loadQuestion();
+        }
     }
 
-    // 显示结果
-    function showResult(){
+    function showResult() {
         let prize = "";
-        if(score===3) prize="🏆一等奖";
-        else if(score===2) prize="🥈二等奖";
-        else if(score===1) prize="🥉三等奖";
-        else prize="再接再厉";
+        if (score === 3) prize = "🏆 一等奖";
+        else if (score === 2) prize = "🥈 二等奖";
+        else if (score === 1) prize = "🥉 三等奖";
+        else prize = "再接再厉";
 
-        document.getElementById("resultInfo").innerHTML = `姓名：${userName}<br>得分：${score}分`;
+        // 显示总分+每一题正确答案
+        let ansHtml = "";
+        nowGroup.forEach((q,i)=>{
+            const u = userAnswers[i];
+            ansHtml += `
+        <div class="ans-item">
+            <div>第${i+1}关：${q.text}</div>
+            <div>你的答案：${u.user} <span class="${u.isRight?'right':'wrong'}">${u.isRight?'✅正确':'❌错误'}</span></div>
+            <div>正确答案：${u.right}</div>
+        </div>
+        `;
+        })
+
+        document.getElementById("resultInfo").innerHTML = `
+        <p>姓名：${userName}</p>
+        <p>得分：${score} 分</p>
+    `;
+        document.getElementById("answerList").innerHTML = ansHtml;
         document.getElementById("prizeText").innerText = prize;
 
-        records.unshift({name:userName, score:score, prize:prize, time:new Date().toLocaleString()});
+        records.unshift({
+            name: userName,
+            score: score,
+            prize: prize,
+            time: new Date().toLocaleString()
+        });
         localStorage.setItem("ybGameRecords", JSON.stringify(records));
+
         showPage("resultPage");
     }
 
-    // 页面切换
-    function showPage(id){
-        document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    function showPage(id) {
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
         document.getElementById(id).classList.add("active");
     }
-    function backToStart(){ showPage("startPage") }
+
+    function backToStart() {
+        showPage("startPage");
+    }
 </script>
 </body>
 </html>
