@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>易班嘉年华·思维闯关</title>
     <style>
         * {
@@ -13,7 +13,7 @@
         }
         body {
             background: #f5f7fa;
-            padding: 20px;
+            padding: 15px;
             max-width: 550px;
             margin: 0 auto;
         }
@@ -25,7 +25,7 @@
         }
         .card {
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 16px;
             box-shadow: 0 2px 10px #00000010;
             margin-bottom: 20px;
@@ -34,27 +34,15 @@
             text-align: center;
             color: #333;
             margin-bottom: 20px;
-            font-size: 24px;
+            font-size: 22px;
         }
-        h2 {
-            font-size: 20px;
-            margin:15px 0;
-            color:#222;
-        }
-        h3{
-            font-size:16px;
-            margin:10px 0 5px;
-        }
-        input,textarea {
+        input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 10px;
             font-size: 15px;
             margin-bottom: 10px;
-        }
-        textarea{
-            min-height:60px;
         }
         button {
             width: 100%;
@@ -70,28 +58,15 @@
         .btn-danger{
             background:#e74c3c;
         }
-        .btn-success{
-            background:#27ae60;
-        }
         .title {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        .question-img {
-            width: 100%;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
         .tip {
             color: #666;
             margin-top: 10px;
             font-size: 14px;
-        }
-        .record-item,.q-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            word-break:break-all;
         }
         .prize {
             font-size: 20px;
@@ -100,13 +75,6 @@
             text-align: center;
             margin: 15px 0;
         }
-        .q-group{
-            border:1px solid #eee;
-            padding:15px;
-            border-radius:10px;
-            margin-bottom:15px;
-        }
-        /* 答题结果样式 */
         .ans-item{
             padding:12px;
             border-bottom:1px solid #eee;
@@ -119,43 +87,45 @@
             color:#e74c3c;
             font-weight:bold;
         }
+        .record-item{
+            padding:10px;
+            border-bottom:1px solid #eee;
+        }
     </style>
 </head>
 <body>
 
+<!-- 开始页 -->
 <div id="startPage" class="page active">
     <div class="card">
         <h1>易班嘉年华·思维闯关</h1>
         <input type="text" id="userName" placeholder="请输入你的名字">
         <button onclick="checkRole()">进入</button>
-        <p class="tip">每组固定3题｜第1/2/3关｜3分一等奖｜2分二等奖｜1分三等奖</p>
+        <p class="tip">第1题6选1｜第2题4选1｜第3题固定推理题｜3分一等奖｜2分二等奖｜1分三等奖</p>
     </div>
 </div>
 
+<!-- 管理员页 -->
 <div id="adminPage" class="page">
     <div class="card">
-        <h1>管理员·题库管理（3题一组）</h1>
-        <div id="qForm"></div>
-        <button class="btn-success" onclick="saveQuestions()">保存全部题库</button>
+        <h1>管理员后台｜答题记录</h1>
+        <div id="recordList"></div>
+        <button class="btn-danger" onclick="clearRecord()">清空所有记录</button>
         <button onclick="backToStart()">返回首页</button>
-    </div>
-    <div class="card">
-        <h2>所有答题记录</h2>
-        <div id="adminRecordList"></div>
-        <button class="btn-danger" onclick="clearAllRecord()">清空所有记录</button>
     </div>
 </div>
 
+<!-- 游戏页 -->
 <div id="gamePage" class="page">
     <div class="card">
         <h1 id="levelTitle">第1关</h1>
         <div id="questionText" class="title"></div>
-        <img id="questionImg" class="question-img">
         <input type="text" id="userAnswer" placeholder="请输入你的答案">
         <button onclick="submitAnswer()">提交答案</button>
     </div>
 </div>
 
+<!-- 结果页 -->
 <div id="resultPage" class="page">
     <div class="card">
         <h1>闯关完成</h1>
@@ -167,203 +137,168 @@
 </div>
 
 <script>
-    // 题库：严格 3题一组，每次随机抽取**完整一组**，固定对应1/2/3关
-    const defaultGroups = [
-        // 第1组
-        [
-            {text:"1.什么动物天天熬夜？",img:"",answer:"熊猫"},
-            {text:"2.什么门永远关不上？",img:"",answer:"球门"},
-            {text:"3.打破了什么不用赔？",img:"",answer:"沉默"}
-        ],
-        // 第2组
-        [
-            {text:"1.什么水永远用不完？",img:"",answer:"泪水"},
-            {text:"2.什么书里毛病最多？",img:"",answer:"医学书"},
-            {text:"3.什么球不能玩？",img:"",answer:"地球"}
-        ],
-        // 第3组
-        [
-            {text:"1.什么布剪不断？",img:"",answer:"瀑布"},
-            {text:"2.什么瓜不能吃？",img:"",answer:"傻瓜"},
-            {text:"3.偷什么不犯法？",img:"",answer:"偷笑"}
-        ],
-        // 第4组
-        [
-            {text:"1.什么池没有水？",img:"",answer:"电池"},
-            {text:"2.什么路最窄？",img:"",answer:"冤家路"},
-            {text:"3.什么酒不能喝？",img:"",answer:"碘酒"}
-        ],
-        // 第5组
-        [
-            {text:"1.什么蛋不能吃？",img:"",answer:"考试零蛋"},
-            {text:"2.什么海不产鱼？",img:"",answer:"辞海"},
-            {text:"3.什么线剪不断？",img:"",answer:"光线"}
-        ],
-        // 第6组
-        [
-            {text:"1.什么马不吃草？",img:"",answer:"海马"},
-            {text:"2.什么虎不吃人？",img:"",answer:"壁虎"},
-            {text:"3.什么狼不吃羊？",img:"",answer:"灰太狼"}
-        ]
-    ];
+// 第1题 最新6题池（包含蚊子题）
+const pool1 = [
+    {text:"1.什么车没有轮子？",answer:"风车"},
+    {text:"2.哪种竹子不长在泥土里？",answer:"爆竹"},
+    {text:"3.什么情况下5大于0，0大于2，2大于5？",answer:"石头剪刀布"},
+    {text:"4.有五只鸟在树上，猎人开枪打死一只，树上还剩几只？（答案格式：X只）用阿拉伯数字",answer:"0只"},
+    {text:"5.什么官没有工资俸禄，还要自己花钱？",answer:"新郎官"},
+    {text:"6.什么动物你打死了它，却流了你的血？",answer:"蚊子"}
+];
 
-    let questionGroups = JSON.parse(localStorage.getItem("ybGroups")) || defaultGroups;
-    let records = JSON.parse(localStorage.getItem("ybGameRecords")) || [];
+// 第2题 4题池
+const pool2 = [
+    {text:"1.去掉前面是十三，去掉后面是四十，这个两位数是多少？用汉语数字答",answer:"四十三"},
+    {text:"2.把大象装进冰箱分三步，把长颈鹿装进冰箱需要几步？（答案格式：X步）用汉语数字答",answer:"四步"},
+    {text:"3.井深10米，蜗牛白天爬3米夜晚滑2米，几天能爬出井口？（答案格式：X天）用阿拉伯数字",answer:"8天"},
+    {text:"4.三人三天用三桶水，九人九天用几桶水？（答案格式：X桶）用阿拉伯数字",answer:"27桶"}
+];
 
-    let userName = "";
-    let nowGroup = []; // 当前选中的一组3题，严格1/2/3关
-    let userAnswers = []; // 保存用户每一题答案
-    let currentLevel = 0;
-    let score = 0;
+// 第3题 固定题
+const fixedQ3 = {
+    text:"富豪拿出10个箱子，其中只有1个箱子装着百亿遗嘱，这10个箱子由颜色和数字组成，富豪把遗嘱箱子的颜色悄悄告诉了大儿子，把数字悄悄告诉了小女儿，然后定下规矩，谁能第一个猜出遗嘱在哪个箱子里，就能继承百亿家产，接下来豪门争斗开始，大儿子冷冷说道我不知道在哪儿，但我可以确定妹妹你也不知道，小女儿眼睛一亮，我刚才确实不知道但多亏了哥哥这句话我现在知道了，大儿子突然笑了，既然你这么说我也知道了，请问遗嘱到底在哪个箱子里？（箱子为:红2，红3，红6，蓝4，蓝5，黑1，黑3，白1，白2，白4）",
+    answer:"黑3"
+};
 
-    function checkRole(){
-        userName = document.getElementById("userName").value.trim();
-        if(!userName){alert("请输入名字");return;}
-        if(userName === "易班嘉年华"){
-            showPage("adminPage");
-            renderAdminForm();
-            showAdminRecord();
-        }else{
-            startGame();
-        }
+// 读取答题记录
+let records = JSON.parse(localStorage.getItem("gameRecords")) || [];
+
+let userName = "";
+let nowQuestions = [];
+let userAnswers = [];
+let currentLevel = 0;
+let score = 0;
+
+// 判断身份：输入“易班嘉年华”进管理员
+function checkRole(){
+    userName = document.getElementById("userName").value.trim();
+    if(!userName){alert("请输入名字");return;}
+    if(userName === "易班嘉年华"){
+        showPage("adminPage");
+        showAdminRecord();
+    }else{
+        startGame();
     }
+}
 
-    function renderAdminForm(){
-        const list = document.getElementById("qForm");
-        list.innerHTML = "<p>每组固定3题，第1题=第1关，第2题=第2关，第3题=第3关</p>";
-        questionGroups.forEach((g,gi)=>{
-            g.forEach((q,i)=>{
-                const div = document.createElement("div");
-                div.className="q-group";
-                div.innerHTML = `
-                <h3>第${gi+1}组-第${i+1}关</h3>
-                <input placeholder="题目文字" value="${q.text}" id="g${gi}t${i}">
-                <input placeholder="图片链接(可不填)" value="${q.img}" id="g${gi}img${i}">
-                <input placeholder="正确答案" value="${q.answer}" id="g${gi}ans${i}">
-            `;
-                list.appendChild(div);
-            })
-        })
+// 显示管理员记录
+function showAdminRecord(){
+    const list = document.getElementById("recordList");
+    list.innerHTML = "";
+    if(records.length===0){
+        list.innerHTML = "<div class='record-item'>暂无答题记录</div>";
+        return;
     }
+    records.forEach(r=>{
+        list.innerHTML += `
+        <div class="record-item">
+            ${r.time}｜${r.name}｜${r.score}分｜${r.prize}
+        </div>
+        `;
+    })
+}
 
-    function saveQuestions(){
-        questionGroups.forEach((g,gi)=>{
-            g.forEach((q,i)=>{
-                q.text = document.getElementById(`g${gi}t${i}`).value;
-                q.img = document.getElementById(`g${gi}img${i}`).value;
-                q.answer = document.getElementById(`g${gi}ans${i}`).value.trim();
-            })
-        })
-        localStorage.setItem("ybGroups",JSON.stringify(questionGroups));
-        alert("题库保存成功！");
+// 清空记录
+function clearRecord(){
+    if(confirm("确定清空所有答题记录？")){
+        records = [];
+        localStorage.setItem("gameRecords",JSON.stringify(records));
+        showAdminRecord();
     }
+}
 
-    function showAdminRecord(){
-        const list = document.getElementById("adminRecordList");
-        list.innerHTML = "";
-        if(records.length===0){list.innerHTML="<div class='q-item'>暂无记录</div>";return;}
-        records.forEach(r=>{
-            const item = document.createElement("div");
-            item.className = "q-item";
-            item.innerText = `${r.time}｜${r.name}｜${r.score}分｜${r.prize}`;
-            list.appendChild(item);
-        })
-    }
+// 开始游戏
+function startGame() {
+    let q1 = pool1[Math.floor(Math.random()*pool1.length)];
+    let q2 = pool2[Math.floor(Math.random()*pool2.length)];
+    let q3 = fixedQ3;
+    nowQuestions = [q1,q2,q3];
+    userAnswers = [];
+    currentLevel = 0;
+    score = 0;
+    showPage("gamePage");
+    loadQuestion();
+}
 
-    function clearAllRecord(){
-        if(confirm("确定清空所有答题记录？")){
-            records=[];
-            localStorage.setItem("ybGameRecords",JSON.stringify(records));
-            showAdminRecord();
-        }
-    }
+// 加载题目
+function loadQuestion() {
+    const q = nowQuestions[currentLevel];
+    document.getElementById("levelTitle").innerText = `第${currentLevel + 1}关`;
+    document.getElementById("questionText").innerText = q.text;
+    document.getElementById("userAnswer").value = "";
+}
 
-    // 随机抽取【完整一组3题】，严格对应1/2/3关
-    function startGame() {
-        let groupIdx = Math.floor(Math.random() * questionGroups.length);
-        nowGroup = questionGroups[groupIdx];
-        userAnswers = [];
-        currentLevel = 0;
-        score = 0;
-        showPage("gamePage");
+// 提交答案
+function submitAnswer() {
+    const q = nowQuestions[currentLevel];
+    let userAns = document.getElementById("userAnswer").value.trim();
+    let rightAns = q.answer.trim();
+    
+    userAnswers.push({
+        user: userAns,
+        right: rightAns,
+        isRight: userAns === rightAns
+    });
+    if(userAns === rightAns) score++;
+
+    currentLevel++;
+    if (currentLevel >= 3) {
+        showResult();
+    } else {
         loadQuestion();
     }
+}
 
-    function loadQuestion() {
-        const q = nowGroup[currentLevel];
-        document.getElementById("levelTitle").innerText = `第${currentLevel + 1}关`;
-        document.getElementById("questionText").innerText = q.text;
-        document.getElementById("questionImg").src = q.img||"";
-        document.getElementById("questionImg").style.display = q.img?"block":"none";
-        document.getElementById("userAnswer").value = "";
-    }
+// 结算结果
+function showResult() {
+    let prize = "";
+    if (score === 3) prize = "🏆 一等奖";
+    else if (score === 2) prize = "🥈 二等奖";
+    else if (score === 1) prize = "🥉 三等奖";
+    else prize = "再接再厉";
 
-    function submitAnswer() {
-        const q = nowGroup[currentLevel];
-        let userAns = document.getElementById("userAnswer").value.trim();
-        let rightAns = q.answer.trim();
+    // 保存记录
+    records.unshift({
+        name: userName,
+        score: score,
+        prize: prize,
+        time: new Date().toLocaleString()
+    });
+    localStorage.setItem("gameRecords",JSON.stringify(records));
 
-        userAnswers.push({
-            user: userAns,
-            right: rightAns,
-            isRight: userAns === rightAns
-        });
-        if(userAns === rightAns) score++;
-
-        currentLevel++;
-        if (currentLevel >= 3) { // 固定3题结束
-            showResult();
-        } else {
-            loadQuestion();
-        }
-    }
-
-    function showResult() {
-        let prize = "";
-        if (score === 3) prize = "🏆 一等奖";
-        else if (score === 2) prize = "🥈 二等奖";
-        else if (score === 1) prize = "🥉 三等奖";
-        else prize = "再接再厉";
-
-        // 显示总分+每一题正确答案
-        let ansHtml = "";
-        nowGroup.forEach((q,i)=>{
-            const u = userAnswers[i];
-            ansHtml += `
+    // 展示结果+正确答案
+    let ansHtml = "";
+    nowQuestions.forEach((q,i)=>{
+        const u = userAnswers[i];
+        ansHtml += `
         <div class="ans-item">
             <div>第${i+1}关：${q.text}</div>
             <div>你的答案：${u.user} <span class="${u.isRight?'right':'wrong'}">${u.isRight?'✅正确':'❌错误'}</span></div>
             <div>正确答案：${u.right}</div>
         </div>
         `;
-        })
+    })
 
-        document.getElementById("resultInfo").innerHTML = `
+    document.getElementById("resultInfo").innerHTML = `
         <p>姓名：${userName}</p>
         <p>得分：${score} 分</p>
     `;
-        document.getElementById("answerList").innerHTML = ansHtml;
-        document.getElementById("prizeText").innerText = prize;
+    document.getElementById("answerList").innerHTML = ansHtml;
+    document.getElementById("prizeText").innerText = prize;
+    showPage("resultPage");
+}
 
-        records.unshift({
-            name: userName,
-            score: score,
-            prize: prize,
-            time: new Date().toLocaleString()
-        });
-        localStorage.setItem("ybGameRecords", JSON.stringify(records));
+// 切换页面
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 
-        showPage("resultPage");
-    }
-
-    function showPage(id) {
-        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-        document.getElementById(id).classList.add("active");
-    }
-
-    function backToStart() {
-        showPage("startPage");
-    }
+// 返回首页
+function backToStart() {
+    showPage("startPage");
+}
 </script>
 </body>
 </html>
